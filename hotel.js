@@ -67,6 +67,9 @@ function inicio() {
         case 1:
             reservar_quarto();
             break;
+        case 4:
+            orcamento_ar_condicionado();
+            break;
         case 5:
             abastecimento();
             break;
@@ -320,12 +323,12 @@ function orcamento_ar_condicionado() {
     let deslocamento;
     let valor_bruto;
     let total;
-    let infomar_outra;
-    let valor_infomar_outra;
-    let preco_melhor_orcamento = 0;
+    let informar_outra;
+    let valor_informar_outra;
+    let preco_melhor_orcamento = Number.MAX_VALUE;
     let empresa_melhor_orcamento;
     //let index_melhor_orcamento;
-    let preco_pior_orcamento = 0;
+    let preco_pior_orcamento = Number.MIN_VALUE;
     //let index_pior_orcamento;
     let empresa_pior_orcamento;
     let texto_final;
@@ -360,19 +363,10 @@ function orcamento_ar_condicionado() {
         valor_bruto = valor_aparelho * quantidade;
         if (quantidade >= minimo_para_desconto) {
             let valor_desconto = valor_bruto * (desconto / 100);
-            total = valor_bruto - valor_desconto + deslocamento
+            total = valor_bruto - valor_desconto + deslocamento;
         } else {
-            total = valor_bruto;
+            total = valor_bruto + deslocamento;
         }
-
-        alert("O serviço de " + empresa + " custará " + formatarReal.format(total) + ".");
-
-        lista_orcamentos.push({
-            empresa: empresa, valor_aparelho: valor_aparelho,
-            quantidade: quantidade, desconto: desconto,
-            minimo_para_desconto: minimo_para_desconto,
-            deslocamento: deslocamento, total: total
-        });
 
         if (total < preco_melhor_orcamento) {
             preco_melhor_orcamento = total;
@@ -384,32 +378,46 @@ function orcamento_ar_condicionado() {
             empresa_pior_orcamento = empresa;
         }
 
+        alert("O serviço de " + empresa + " custará " + formatarReal.format(total) + ".");
+
+        lista_orcamentos.push({
+            empresa: empresa, valor_aparelho: valor_aparelho,
+            quantidade: quantidade, desconto: desconto,
+            minimo_para_desconto: minimo_para_desconto,
+            deslocamento: deslocamento, total: total
+        });
+
+
+
+        let opcao_continuar = ["S", "N"];
+
         do{
-            valor_infomar_outra = prompt("Deseja informar novos dados, " + nome_usuario + "? (S/N): ").toUpperCase();
-            if(valor_infomar_outra !== "N" || valor_infomar_outra !== "S"){
+            valor_informar_outra = (prompt("Deseja informar novos dados, " + nome_usuario + "? (S/N): ")).toUpperCase();
+            if(!opcao_continuar.includes(valor_informar_outra)){
                 alert("Opção inválida.");
-                infomar_outra = true;
-            }else if(valor_infomar_outra === "N"){
-                infomar_outra = false;
+                informar_outra = true;
+            }else if(valor_informar_outra === "N"){
+                informar_outra = false;
                 continuar = false;
             }else{
-                infomar_outra = false;
+                informar_outra = false;
             }
-        }while(infomar_outra);
+        }while(informar_outra);
         
     } while (continuar);
 
-    if(preco_pior_orcamento === 0){
+    if(lista_orcamentos.length === 1){
         texto_final = "Apenas 1 empresa informada.\nMelhor orçamento: " + empresa_melhor_orcamento +
-                        " - " + formatarReal.format(preco_melhor_orcamento);
+                        " - " + formatarReal.format(preco_melhor_orcamento) + ".";
     }else{
-        diferenca_percentual = (((preco_melhor_orcamento - preco_pior_orcamento)/preco_melhor_orcamento) * 100);
+        diferenca_percentual = (((preco_pior_orcamento - preco_melhor_orcamento)/preco_melhor_orcamento) * 100);
         texto_final = "Menor orçamento: "  + empresa_melhor_orcamento +
-                        " - " + formatarReal.format(preco_melhor_orcamento) +
-                        "\n Maior orçamento: "  + empresa_pior_orcamento +
-                        " - " + formatarReal.format(preco_pior_orcamento) +
+                        " - " + formatarReal.format(preco_melhor_orcamento)  + "." +
+                        "\nMaior orçamento: "  + empresa_pior_orcamento +
+                        " - " + formatarReal.format(preco_pior_orcamento)  + "." +
+                        "\nDiferença percentual dos orçamentos: " + diferenca_percentual.toFixed(2) + "%"+
                         "\n\nMelhor orçamento: " + empresa_melhor_orcamento +
-                        " - " + formatarReal.format(preco_melhor_orcamento);
+                        " - " + formatarReal.format(preco_melhor_orcamento)  + ".";
     }
     
     alert(texto_final);
