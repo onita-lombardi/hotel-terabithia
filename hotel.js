@@ -2,8 +2,8 @@
 
 //3.1 Identidade, autenticação e sessão
 var nome_hotel = "Terabithia";
-var nome_usuario = "Onita";
-var lista_hospedes = [];
+var nome_usuario;
+var lista_hospedes = [{ id: 1, nome: "ANA MARIA", data_cadastro: "01/04/2026", hora_cadastro: "17:36:51" }, { id: 2, nome: "ANA BARBARA", data_cadastro: "01/04/2026", hora_cadastro: "17:36:52" }, { id: 3, nome: "ANA LUIZA", data_cadastro: "01/04/2026", hora_cadastro: "17:36:53" }];
 var lista_reservas = [];
 
 const formatarReal = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
@@ -38,6 +38,11 @@ function autenticacao() {
     alert("Bem-vindo ao " + nome_hotel + ".");
     nome_usuario = prompt("Digite seu nome de usuário: ");
 
+    if (!isNaN(nome_usuario)) {
+        alert("Usuário inválido.");
+        return;
+    }
+
     do {
         senha = prompt("Digite sua senha: ");
         if (senha === "2") { //"2678"
@@ -58,7 +63,7 @@ function autenticacao() {
 //3.2 Menu principal e organização
 function inicio() {
 
-    let escolha = parseInt(prompt("Selecione uma opção:\n 1.) Reserva de Quartos\n" +
+    let escolha = parseInt(prompt("HOTEL " + nome_hotel.toUpperCase() + "\nSelecione uma opção:\n 1.) Reserva de Quartos\n" +
         " 2.) Cadastro de Hóspedes\n 3.) Eventos\n" +
         " 4.) Ar-Condicionado\n 5.) Abastecimento de Carros\n" +
         " 6.) Relatórios Operacionais\n 7.) Sair"));
@@ -66,6 +71,9 @@ function inicio() {
     switch (escolha) {
         case 1:
             reservar_quarto();
+            break;
+        case 2:
+            menu_cadastro_hospede();
             break;
         case 4:
             orcamento_ar_condicionado();
@@ -137,21 +145,29 @@ function reservar_quarto() {
         if (quartos_livres.includes("Todos")) {
             alert(quartos_livres + "\nPor favor, escolha outro tipo de quarto.");
             tipo_num = escolher_tipo_quarto();
-
-        } else {
-
-            quarto_escolhido = parseInt(prompt(quartos_livres + "\n\nEscolha um quarto (1-20): "));
-            if (isNaN(quarto_escolhido)) {
-                alert("Digite apenas números para escolher o quarto.");
-            } else if (quarto_escolhido <= 0 || quarto_escolhido > 20) {
-                alert("Número de quarto inválido.");
-            } else if (!(quartos_livres.includes(quarto_escolhido))) {
-                alert("Quarto " + quarto_escolhido + " não é do tipo " +
-                    lista_tipo_quarto[tipo_num - 1] + ".\nPor favor, escolha outro quarto.");
-            } else {
-                invalido = false;
-            }
+            continue;
         }
+
+        quarto_escolhido = parseInt(prompt(quartos_livres + "\n\nEscolha um quarto (1-20): "));
+
+        if (isNaN(quarto_escolhido)) {
+            alert("Digite apenas números para escolher o quarto.");
+            continue;
+        }
+
+        if (quarto_escolhido <= 0 || quarto_escolhido > 20) {
+            alert("Número de quarto inválido.");
+            continue;
+        }
+
+        if (!quartos_livres.split(" ").includes(String(quarto_escolhido).padStart(2, "0"))) {
+            alert("Quarto " + quarto_escolhido + " não é do tipo " +
+                lista_tipo_quarto[tipo_num - 1] + ".\nPor favor, escolha outro quarto.");
+            continue;
+        }
+
+        invalido = false;
+
     } while (invalido);
 
     fator_tipo_quarto = (tipo_num === 1) ? 1 : (tipo_num === 2) ? 1.35 : 1.65;
@@ -169,7 +185,18 @@ function reservar_quarto() {
             "\nTaxa de serviço (10%): " + formatarReal.format(taxa_servico) + "\nTotal: " +
             formatarReal.format(total) + "\n\n" + nome_usuario + ", confirma a reserva? (S/N):");
 
-        if (confirmar_reserva.toUpperCase() === "S") {
+        confirmar_reserva = confirmar_reserva.toUpperCase();
+
+        if(confirmar_reserva !== "N" && confirmar_reserva !== "S"){
+            alert("Opção não válida.");
+        }
+
+        if(confirmar_reserva === "N") {
+            alert("Reserva não efetuada.");
+            invalido = false;
+        }
+
+        if (confirmar_reserva === "S") {
             index_quarto_escolhido = lista_quartos.findIndex(quarto => quarto.numero == quarto_escolhido);
             lista_quartos[index_quarto_escolhido].ocupado = true;
             lista_reservas.push({
@@ -179,12 +206,8 @@ function reservar_quarto() {
             alert("Reserva efetuada com sucesso.\n");
             mapa_status_todos_quartos();
             invalido = false;
-        } else if (confirmar_reserva.toUpperCase() === "N") {
-            alert("Reserva não efetuada.");
-            invalido = false;
-        } else {
-            alert("Opção não válida.")
         }
+
     } while (invalido);
 
     inicio();
@@ -310,7 +333,192 @@ function valor_invalido() {
 }
 
 // 5) Subprograma 2 — Cadastro de Hóspedes (com índices)
+function menu_cadastro_hospede() {
 
+    let escolha;
+
+    do {
+
+        escolha = parseInt(prompt("Cadastro de Hóspedes".toUpperCase() + "\nSelecione uma opção:\n 1.) Cadastrar\n 2.) Pesquisar por nome exato\n" +
+            " 3.) Pesquisar por prefixo\n 4.) Listar ordenado (A-Z)\n 5.) Atualizar cadastro\n 6.) Remover cadastro \n 7.) Voltar"));
+
+        switch (escolha) {
+            case 1:
+                cadastrar_hospede();
+                break;
+            case 2:
+                pesquisar_nome_exato();
+                break;
+            case 3:
+                pesquisar_por_prefixo();
+                break;
+            case 4:
+                listar_ordenado();
+                break;
+            case 5:
+                alterar_cadastro();
+                break;
+            case 6:
+                excluir_cadastro();
+                break;
+            case 7:
+                alert("Voltando para Menu Principal Hotel " + nome_hotel + ".");
+                break;
+            default:
+                alert('Por favor, informe um número entre 1 e 7.');
+                break;
+        }
+    } while (escolha !== 7);
+
+    inicio();
+}
+
+function cadastrar_hospede() {
+    let quantidade_hospedes_ativos = lista_hospedes.length;
+    let hospede;
+    let indice = 0;
+
+    if (quantidade_hospedes_ativos === 15) {
+        alert("Máximo de cadastros atingido.");
+        return;
+    }
+
+    hospede = (prompt("Cadastro de Hóspede\nDigite o nome do hóspede:")).toUpperCase();
+
+    if (!isNaN(hospede)) {
+        alert("Nome inválido.");
+        return;
+    }
+
+    if (lista_hospedes.find(nome => nome.nome === hospede)) {
+        alert("Hóspede " + hospede + " já estava cadastrado.");
+        return;
+    }
+
+    let data = new Date();
+    indice = quantidade_hospedes_ativos + 1;
+    lista_hospedes.push({
+        id: indice, nome: hospede,
+        data_cadastro: data.toLocaleDateString('pt-BR'),
+        hora_cadastro: data.toLocaleTimeString('pt-BR')
+    });
+
+    alert("Hóspede " + hospede + " foi cadastrado com sucesso!");
+}
+
+function pesquisar_nome_exato() {
+    let nome_hospede;
+    let texto;
+    let encontrou;
+
+    nome_hospede = (prompt("Pesquisar por nome exato\n\nDigite o nome completo:")).toUpperCase();
+
+    encontrou = lista_hospedes.find(nome => nome.nome === nome_hospede);
+
+    if (encontrou) {
+        texto = "Hospede " + nome_hospede + " foi encontrado.\nId: " + encontrou.id;
+    } else {
+        texto = "Hóspede não encontrado."
+    }
+    alert(texto);
+
+}
+
+function pesquisar_por_prefixo() {
+    let prefixo;
+    let texto;
+    let resultado_pesquisa;
+
+    prefixo = (prompt("Pesquisar por prefixo\n\nDigite o prefixo:")).toUpperCase().trim();
+
+    resultado_pesquisa = lista_hospedes.filter(nome => nome.nome.includes(prefixo));
+
+    texto = "Prefixo: " + prefixo;
+
+    if (resultado_pesquisa.length === 0) {
+        texto += "\nNenhum resultado encontrado."
+    } else {
+        texto += "\n\nResultados: " + resultado_pesquisa.map(hospede => "\nId: " + hospede.id +
+            "  - Nome: " + hospede.nome);
+    }
+
+    alert(texto);
+}
+
+function listar_ordenado() {
+    const lista_ordenada = [...lista_hospedes].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+    let texto = "Lista de Hóspedes em Ordem Alfabética\n" + lista_ordenada.map(hospede => "\nId: " + hospede.id +
+        "  - Nome: " + hospede.nome + " - Data do cadastro: " + hospede.data_cadastro
+        + " " + hospede.hora_cadastro);
+    alert(texto);
+}
+
+function alterar_cadastro() {
+    let id;
+    let nome_editado;
+    let index;
+
+    id = parseInt(prompt("Alterar Cadastro\nDigite o id do hóspede: "));
+
+    if (isNaN(id)) {
+        alert("Id inválido! Digite apenas números.");
+        return;
+    }
+
+    index = lista_hospedes.findIndex(hospede => hospede.id === id);
+
+    if (index === -1) {
+        alert("Hospede não encontrado.");
+        return;
+    }
+
+    nome_editado = (prompt("Editar nome: ", lista_hospedes[index].nome)).toLocaleUpperCase();
+
+    if (!isNaN(nome_editado) || nome_editado.trim() === "") {
+        alert("Alteração inválida.");
+        return;
+    }
+
+    if (lista_hospedes.find(nome => nome.nome === nome_editado)) {
+        alert("Alteração inválida. Já existe um cadastro com esse nome.");
+        return;
+    }
+
+    lista_hospedes[index].nome = nome_editado;
+    alert("Cadastro editado com sucesso.");
+}
+
+function excluir_cadastro() {
+    let id;
+    let index;
+    let confirmar;
+
+    id = parseInt(prompt("Excluir Cadastro\nDigite o id do hóspede: "));
+
+    if (isNaN(id)) {
+        alert("Id inválido! Digite apenas números.");
+        return;
+    }
+
+    index = lista_hospedes.findIndex(hospede => hospede.id === id);
+
+    if (index === -1) {
+        alert("Hospede não encontrado.");
+        return;
+    }
+
+    confirmar = confirm("Tem certeza que deseja excluir o cadastro de " + lista_hospedes[index].nome + "?");
+
+    if (!confirmar) {
+        alert("Exclusão cancelada.");
+        return;
+    }
+
+    lista_hospedes.splice(index, 1);
+
+    alert("Cadastro excluído com sucesso.");
+
+}
 
 // 7) Subprograma 4 — Ar-Condicionado (comparativo técnico)
 function orcamento_ar_condicionado() {
@@ -391,36 +599,38 @@ function orcamento_ar_condicionado() {
 
         let opcao_continuar = ["S", "N"];
 
-        do{
+        do {
             valor_informar_outra = (prompt("Deseja informar novos dados, " + nome_usuario + "? (S/N): ")).toUpperCase();
-            if(!opcao_continuar.includes(valor_informar_outra)){
+            if (!opcao_continuar.includes(valor_informar_outra)) {
                 alert("Opção inválida.");
                 informar_outra = true;
-            }else if(valor_informar_outra === "N"){
+            } else if (valor_informar_outra === "N") {
                 informar_outra = false;
                 continuar = false;
-            }else{
+            } else {
                 informar_outra = false;
             }
-        }while(informar_outra);
-        
+        } while (informar_outra);
+
     } while (continuar);
 
-    if(lista_orcamentos.length === 1){
+    if (lista_orcamentos.length === 1) {
         texto_final = "Apenas 1 empresa informada.\nMelhor orçamento: " + empresa_melhor_orcamento +
-                        " - " + formatarReal.format(preco_melhor_orcamento) + ".";
-    }else{
-        diferenca_percentual = (((preco_pior_orcamento - preco_melhor_orcamento)/preco_melhor_orcamento) * 100);
-        texto_final = "Menor orçamento: "  + empresa_melhor_orcamento +
-                        " - " + formatarReal.format(preco_melhor_orcamento)  + "." +
-                        "\nMaior orçamento: "  + empresa_pior_orcamento +
-                        " - " + formatarReal.format(preco_pior_orcamento)  + "." +
-                        "\nDiferença percentual dos orçamentos: " + diferenca_percentual.toFixed(2) + "%"+
-                        "\n\nMelhor orçamento: " + empresa_melhor_orcamento +
-                        " - " + formatarReal.format(preco_melhor_orcamento)  + ".";
+            " - " + formatarReal.format(preco_melhor_orcamento) + ".";
+    } else {
+        diferenca_percentual = (((preco_pior_orcamento - preco_melhor_orcamento) / preco_melhor_orcamento) * 100);
+        texto_final = "Menor orçamento: " + empresa_melhor_orcamento +
+            " - " + formatarReal.format(preco_melhor_orcamento) + "." +
+            "\nMaior orçamento: " + empresa_pior_orcamento +
+            " - " + formatarReal.format(preco_pior_orcamento) + "." +
+            "\nDiferença percentual dos orçamentos: " + diferenca_percentual.toFixed(2) + "%" +
+            "\n\nMelhor orçamento: " + empresa_melhor_orcamento +
+            " - " + formatarReal.format(preco_melhor_orcamento) + ".";
     }
-    
+
     alert(texto_final);
+
+    inicio();
 }
 
 function validar_quantidade(quantidade) {
@@ -533,6 +743,5 @@ function combustivel_ideal(preco_alcool, preco_gasolina) {
     }
 }
 
-orcamento_ar_condicionado();
 //começa o programa
-//autenticacao();
+autenticacao();
