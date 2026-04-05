@@ -4,7 +4,8 @@
 var nome_hotel = "Terabithia";
 var nome_usuario;
 var lista_hospedes = [{ id: 1, nome: "ANA MARIA", data_cadastro: "01/04/2026", hora_cadastro: "17:36:51" }, { id: 2, nome: "ANA BARBARA", data_cadastro: "01/04/2026", hora_cadastro: "17:36:52" }, { id: 3, nome: "ANA LUIZA", data_cadastro: "01/04/2026", hora_cadastro: "17:36:53" }];
-var lista_reservas = [];
+var lista_reservas = []; //{ hospede: "ANA MARIA", quarto: "16", diarias: 7, total: 7000}, { hospede: "ANA BARBARA", quarto: "18", diarias: 7, total: 7000}, { hospede: "ANA LUIZA", quarto: "20", diarias: 7, total: 7000}
+var eventos = [];
 
 const formatarReal = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
@@ -23,13 +24,11 @@ var lista_quartos = [{ id: 1, andar: 1, numero: "01", tipo: "Standard", ocupado:
 { id: 13, andar: 3, numero: "13", tipo: "Executivo", ocupado: false },
 { id: 14, andar: 3, numero: "14", tipo: "Executivo", ocupado: false },
 { id: 15, andar: 3, numero: "15", tipo: "Executivo", ocupado: false },
-{ id: 16, andar: 4, numero: "16", tipo: "Luxo", ocupado: true },
-{ id: 17, andar: 4, numero: "17", tipo: "Luxo", ocupado: true },
-{ id: 18, andar: 4, numero: "18", tipo: "Luxo", ocupado: true },
-{ id: 19, andar: 4, numero: "19", tipo: "Luxo", ocupado: true },
-{ id: 20, andar: 4, numero: "20", tipo: "Luxo", ocupado: true }];
-
-var quantidade_quartos_ocupados = 0;
+{ id: 16, andar: 4, numero: "16", tipo: "Luxo", ocupado: false },
+{ id: 17, andar: 4, numero: "17", tipo: "Luxo", ocupado: false },
+{ id: 18, andar: 4, numero: "18", tipo: "Luxo", ocupado: false },
+{ id: 19, andar: 4, numero: "19", tipo: "Luxo", ocupado: false },
+{ id: 20, andar: 4, numero: "20", tipo: "Luxo", ocupado: false }];
 
 function autenticacao() {
     let senha;
@@ -45,7 +44,7 @@ function autenticacao() {
 
     do {
         senha = prompt("Digite sua senha: ");
-        if (senha === "2") { //"2678"
+        if (senha === "2678") {
             alert("Bem-vindo ao Hotel " + nome_hotel + ", " + nome_usuario +
                 ". É um imenso prazer ter você por aqui!");
             tentativas = 4;
@@ -63,49 +62,58 @@ function autenticacao() {
 //3.2 Menu principal e organização
 function inicio() {
 
-    let escolha = parseInt(prompt("HOTEL " + nome_hotel.toUpperCase() + "\nSelecione uma opção:\n 1.) Reserva de Quartos\n" +
-        " 2.) Cadastro de Hóspedes\n 3.) Eventos\n" +
-        " 4.) Ar-Condicionado\n 5.) Abastecimento de Carros\n" +
-        " 6.) Relatórios Operacionais\n 7.) Sair"));
+    let escolha;
 
-    switch (escolha) {
-        case 1:
-            reservar_quarto();
-            break;
-        case 2:
-            menu_cadastro_hospede();
-            break;
-        case 4:
-            orcamento_ar_condicionado();
-            break;
-        case 5:
-            abastecimento();
-            break;
-        case 7:
-            sair();
-            break;
-        default:
-            erro_inicio();
-            break;
-    }
+    do {
+        escolha = parseInt(prompt("HOTEL " + nome_hotel.toUpperCase() + "\nSelecione uma opção:\n 1.) Reserva de Quartos\n" +
+            " 2.) Cadastro de Hóspedes\n 3.) Eventos\n" +
+            " 4.) Ar-Condicionado\n 5.) Abastecimento de Carros\n" +
+            " 6.) Relatórios Operacionais\n 7.) Sair"));
+
+        switch (escolha) {
+            case 1:
+                reservar_quarto();
+                break;
+            case 2:
+                menu_cadastro_hospede();
+                break;
+            case 3:
+                reservar_evento();
+                break;
+            case 4:
+                orcamento_ar_condicionado();
+                break;
+            case 5:
+                abastecimento();
+                break;
+            case 6:
+                relatorio_operacional();
+                break;
+            case 7:
+                escolha = sair();
+                break;
+            default:
+                erro_inicio();
+                break;
+        }
+    }while(escolha !== 7);
 }
 
 function sair() {
     let confirma = confirm('Você deseja sair?');
     if (confirma) {
         alert("Muito obrigado e até logo, " + nome_usuario + ".");
+        return 7;
     } else {
-        inicio();
+        return 0;
     }
 }
 
 function erro_inicio() {
     alert('Por favor, informe um número entre 1 e 7.');
-    inicio();
 }
 
 // 4) Subprograma 1 — Reservas de Quartos (nível avançado)
-
 function reservar_quarto() {
     let valor_diaria;
     let quantidade_diaria;
@@ -121,7 +129,6 @@ function reservar_quarto() {
     let total;
     let confirmar_reserva;
     let index_quarto_escolhido;
-
 
     valor_diaria = parseFloat(prompt("Reservas\nInforme o valor da diária: "));
     if (isNaN(valor_diaria) || valor_diaria < 0) {
@@ -187,11 +194,11 @@ function reservar_quarto() {
 
         confirmar_reserva = confirmar_reserva.toUpperCase();
 
-        if(confirmar_reserva !== "N" && confirmar_reserva !== "S"){
+        if (confirmar_reserva !== "N" && confirmar_reserva !== "S") {
             alert("Opção não válida.");
         }
 
-        if(confirmar_reserva === "N") {
+        if (confirmar_reserva === "N") {
             alert("Reserva não efetuada.");
             invalido = false;
         }
@@ -209,8 +216,6 @@ function reservar_quarto() {
         }
 
     } while (invalido);
-
-    inicio();
 
 }
 
@@ -329,7 +334,6 @@ function escolher_tipo_quarto() {
 
 function valor_invalido() {
     alert("Valor inválido, " + nome_usuario + ".");
-    inicio();
 }
 
 // 5) Subprograma 2 — Cadastro de Hóspedes (com índices)
@@ -370,7 +374,6 @@ function menu_cadastro_hospede() {
         }
     } while (escolha !== 7);
 
-    inicio();
 }
 
 function cadastrar_hospede() {
@@ -520,6 +523,256 @@ function excluir_cadastro() {
 
 }
 
+//6) Subprograma 3 — Eventos (pipeline completo)
+function reservar_evento() {
+    let auditorio;
+    let dia_evento;
+    let garcons;
+    let buffet;
+    let total_evento;
+    let confirmar_evento;
+    let id_evento = eventos.length + 1;
+
+    auditorio = selecionar_auditorio();
+    if (auditorio === undefined) {
+        alert("Operação cancelada.");
+        return;
+    }
+
+    dia_evento = selecionar_dia_evento();
+
+    if (dia_evento === undefined) {
+        alert("Operação cancelada.");
+        return;
+    }
+
+    garcons = calcular_quantidade_garcons(auditorio.convidados, dia_evento.duracao);
+
+    buffet = calcular_custo_buffet(auditorio.convidados);
+
+    total_evento = garcons.custo_total + buffet.custo_total;
+
+    let texto = "Eventos\nConvidados: " + auditorio.convidados +
+        "\nAuditório: " + auditorio.auditorio + " (" + auditorio.extras +
+        " cadeiras adicionais)";
+
+    texto += "\n\nDia: " + dia_evento.dia + "\nHora inicial: " + dia_evento.hora +
+        "h\nDuração: " + dia_evento.duracao + "h\nEmpresa: " + dia_evento.empresa +
+        "\nStatus: Auditório " + dia_evento.status + ".";
+
+    texto += "\n\nGarçons necessários: " + garcons.num_garcons + "\nCusto com garçons: " +
+        formatarReal.format(garcons.custo_total);
+
+    texto += "\n\nBuffet:\nCafé: " + (buffet.quant_cafe).toFixed(1) + " L \nÁgua: " + (buffet.quant_agua).toFixed(1) +
+        " L \nSalgados: " + buffet.quant_salgados + " un\nCusto buffet: " +
+        formatarReal.format(buffet.custo_total);
+
+    alert(texto);
+
+    do {
+        confirmar_evento = prompt("Total do evento: " + formatarReal.format(total_evento) + "\nConfirmar reserva? (S/N): ");
+        confirmar_evento = confirmar_evento.toLocaleUpperCase();
+
+        if (confirmar_evento !== "S" && confirmar_evento !== "N") {
+            alert("Opção inválida.");
+            confirmar_evento = "";
+        }
+
+        if (confirmar_evento === "S") {
+            eventos.push({
+                id: id_evento, auditorio: auditorio.auditorio, num_convidados: auditorio.convidados,
+                cadeiras_extras: auditorio.extras, dia: dia_evento.dia, hora: dia_evento.hora,
+                duracao: dia_evento.duracao, status: dia_evento.status, num_garcons: garcons.num_garcons,
+                custo_garcons: garcons.custo_total, quant_cafe: buffet.quant_cafe,
+                quant_agua: buffet.quant_agua, quant_salgados: buffet.quant_salgados, custo_buffet: buffet.custo_total,
+                total_evento: total_evento});
+            alert("Reserva efetuada com sucesso.");
+        }
+
+        if (confirmar_evento === "N") {
+            alert("Operação cancelada.");
+        }
+
+    } while (confirmar_evento === "");
+
+}
+
+//6.1 Parte A — Capacidade e seleção de auditório
+function selecionar_auditorio() {
+    let resultado;
+    let numero_convidados;
+    let auditorio;
+    let cadeiras_extras = 0;
+
+    numero_convidados = parseInt(prompt("Digite o número de convidados: "));
+
+    if (numero_convidados <= 0 || numero_convidados > 350 || isNaN(numero_convidados)) {
+        alert("Número de convidados inválido.");
+        return;
+    }
+
+    if (numero_convidados <= 220) {
+        auditorio = "Laranja";
+        if (numero_convidados > 150) {
+            cadeiras_extras = numero_convidados - 150;
+        }
+    } else {
+        auditorio = "Colorado";
+    }
+
+    resultado = { convidados: numero_convidados, auditorio: auditorio, extras: cadeiras_extras };
+
+    return resultado;
+}
+
+//6.2 Parte B — Agenda e disponibilidade
+function selecionar_dia_evento() {
+    let dia_input;
+    let dia_objeto;
+    let hora;
+    let duracao;
+    let dia_id;
+    let dia;
+    let duracao_maxima;
+    let valida_duracao;
+    let empresa;
+    let status;
+    let dias = [{ dia: "seg", id: 2 }, { dia: "ter", id: 3 }, { dia: "qua", id: 4 },
+    { dia: "qui", id: 5 }, { dia: "sex", id: 6 }, { dia: "sab", id: 7 },
+    { dia: "dom", id: 1 }, { dia: "segunda-feira", id: 2 }, { dia: "terça-feira", id: 3 },
+    { dia: "quarta-feira", id: 4 }, { dia: "quinta-feira", id: 5 }, { dia: "sexta-feira", id: 6 },
+    { dia: "sabado", id: 7 }, { dia: "domingo", id: 1 }, { dia: "segunda", id: 2 },
+    { dia: "terça", id: 3 }, { dia: "quarta", id: 4 }, { dia: "quinta", id: 5 },
+    { dia: "sexta", id: 6 }, { dia: "sábado", id: 7 }, { dia: "sáb", id: 7 }];
+
+    do {
+        dia_input = prompt("Janela de reserva\nSegunda a sexta: 07h–23h\nSábado e domingo: 07h–15h" +
+            "\nDigite o dia da semana do evento:");
+        dia_input = dia_input.toLowerCase().trim();
+
+        dia_objeto = dias.find(dia => dia.dia === dia_input);
+
+        if (dia_objeto === undefined) {
+            alert("Dia inválido.");
+        }
+    } while (!dia_objeto);
+
+    dia_id = dia_objeto.id;
+
+    switch (dia_id) {
+        case 1:
+            dia = "domingo";
+            duracao_maxima = 15;
+            break;
+        case 2:
+            dia = "segunda";
+            duracao_maxima = 23;
+            break;
+        case 3:
+            dia = "terça";
+            duracao_maxima = 23;
+            break;
+        case 4:
+            dia = "quarta";
+            duracao_maxima = 23;
+            break;
+        case 5:
+            dia = "quinta";
+            duracao_maxima = 23;
+            break;
+        case 6:
+            dia = "sexta";
+            duracao_maxima = 23;
+            break;
+        case 7:
+            dia = "sábado";
+            duracao_maxima = 15;
+            break;
+    }
+
+    do {
+        hora = parseInt(prompt("Digite a hora do evento (7-" + duracao_maxima + "):\n"));
+        if (isNaN(hora) || hora < 7 || hora > duracao_maxima) {
+            alert("Hora inválida.");
+            hora = null;
+        }
+    } while (hora === null);
+
+    do {
+        duracao = parseInt(prompt("Digite a duracao do evento (1-12):\n"));
+        if (isNaN(duracao) || duracao <= 0 || duracao > 12) {
+            alert("Duração inválida.");
+            duracao = null;
+        }
+
+    } while (duracao === null);
+
+    valida_duracao = hora + duracao;
+    if (valida_duracao > duracao_maxima) {
+        alert("A duração do evento ultrapassa " + (valida_duracao - duracao_maxima) + "h da hora permitida do dia." +
+            "\nDia: " + dia + ";\nHora do auditório fechar: " + duracao_maxima + "h.");
+        return;
+    }
+
+    do {
+        empresa = prompt("Digite o nome da empresa: ");
+
+        if (!isNaN(empresa) || empresa.trim() === "") {
+            alert("Nome inválido.");
+            empresa = null;
+        }
+
+    } while (!empresa);
+
+    status = "reservado";
+
+    alert("Auditório reservado para " + empresa + ": " + dia + " às " + hora + "hs.")
+    return { dia: dia, hora: hora, duracao: duracao, empresa: empresa, status: status };
+}
+
+//6.3 Parte C — Equipe de garçons
+function calcular_quantidade_garcons(numero_convidados, duracao) {
+    let base;
+    let reforco_duracao;
+    let total_garcons;
+    let custo_hora;
+    let custo_total;
+
+    base = Math.ceil(numero_convidados / 12);
+    reforco_duracao = Math.floor(duracao / 2);
+    total_garcons = base + reforco_duracao;
+    custo_hora = 10.50;
+
+    custo_total = total_garcons * duracao * custo_hora;
+
+    return { num_garcons: total_garcons, custo_total: custo_total };
+}
+
+//6.4 Parte D — Buffet
+function calcular_custo_buffet(numero_convidados) {
+    let quant_cafe;
+    let quant_agua;
+    let quant_salgados;
+    let custo_cafe;
+    let custo_agua;
+    let custo_salgados;
+    let custo_total;
+
+    quant_cafe = numero_convidados * 0.2;
+    quant_agua = numero_convidados * 0.5;
+    quant_salgados = numero_convidados * 7;
+
+    custo_cafe = 0.80 * quant_cafe;
+    custo_agua = 0.40 * quant_agua;
+    custo_salgados = 34 * Math.ceil(quant_salgados / 100);
+    custo_total = custo_cafe + custo_agua + custo_salgados;
+
+    return {
+        quant_cafe: quant_cafe, quant_agua: quant_agua, quant_salgados: quant_salgados,
+        custo_total: custo_total
+    };
+}
+
 // 7) Subprograma 4 — Ar-Condicionado (comparativo técnico)
 function orcamento_ar_condicionado() {
     let lista_orcamentos = [];
@@ -630,7 +883,6 @@ function orcamento_ar_condicionado() {
 
     alert(texto_final);
 
-    inicio();
 }
 
 function validar_quantidade(quantidade) {
@@ -668,6 +920,8 @@ function abastecimento() {
     let posto_mais_barato;
 
     let litros_max_tanque = 42;
+
+    let tipo_combustivel;
 
 
     do {
@@ -707,8 +961,10 @@ function abastecimento() {
 
     if (total_wayne_oil <= total_stark_petrol) {
         posto_mais_barato = "Wayne Oil";
+        tipo_combustivel = (combustivel_ideal_wayne_oil).toLocaleLowerCase();
     } else {
         posto_mais_barato = "Stark Petrol";
+        tipo_combustivel = (combustivel_ideal_stark_petrol).toLocaleLowerCase();
     }
 
     let texto = "Abastecimento\nWayne Oil -> Álcool: " + formatarReal.format(alcool_wayne_oil) +
@@ -719,7 +975,7 @@ function abastecimento() {
         " | Total (42L) = " + formatarReal.format(total_wayne_oil) +
         "\nStark Petrol: melhor opção = " + combustivel_ideal_stark_petrol +
         " | Total (42L) = " + formatarReal.format(total_stark_petrol) + "\n\n" +
-        nome_usuario + ", é mais barato abastecer com gasolina no posto " +
+        nome_usuario + ", é mais barato abastecer com " + tipo_combustivel + " no posto " +
         posto_mais_barato + ".";
 
 
@@ -742,6 +998,38 @@ function combustivel_ideal(preco_alcool, preco_gasolina) {
         return "Gasolina";
     }
 }
+
+//9) Subprograma 6 — Relatórios Operacionais
+function relatorio_operacional(){
+    let quant_reservas;
+    let quartos_ocupados;
+    let taxa_ocupacao;
+    let quant_hospedes;
+    let quant_eventos;
+    let total_hospedagem;
+    let total_eventos
+    let total_geral;
+
+    quant_reservas = lista_reservas.length;
+    quartos_ocupados = lista_quartos.filter(quarto => quarto.ocupado).length;
+    taxa_ocupacao = quartos_ocupados / 20;
+    quant_hospedes = lista_hospedes.length;
+    quant_eventos = eventos.length;
+    
+    total_hospedagem = lista_reservas.reduce((soma, reserva) => soma + reserva.total, 0);
+    total_eventos = eventos.reduce((soma, evento) => soma + evento.total_evento, 0);
+    total_geral = total_hospedagem + total_eventos;
+
+    alert("RELATÓRIO OPERACIONAL\nReservas confirmadas: " + quant_reservas + "\nTaxa de ocupação: " + 
+        taxa_ocupacao + "\nHóspedes cadastrados: " + quant_hospedes + "\nEventos confirmados: " +
+        quant_eventos + "\n\nReceita hospedagem: " + formatarReal.format(total_hospedagem) +
+        "\nReceita eventos: " + formatarReal.format(total_eventos) + "\nReceita total: " +
+        formatarReal.format(total_geral));
+}
+
+//selecionar_dia_evento();
+//reservar_evento();
+//calcular_custo_buffet(192);
 
 //começa o programa
 autenticacao();
